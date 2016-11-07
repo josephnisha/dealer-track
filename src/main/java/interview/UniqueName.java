@@ -1,5 +1,6 @@
 package interview;
 
+import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,7 +10,7 @@ class UniqueName {
 
     List<String> getUniqueNameRecords(List<String> records){
 
-        Map<String,Integer> uniqueNameMap = new LinkedHashMap<>();
+        Map<String, BigDecimal> uniqueNameMap = new LinkedHashMap<>();
         if(records == null || records.isEmpty()){
             return null;
         }
@@ -22,28 +23,37 @@ class UniqueName {
 
     }
 
-    private void createUniqueRecordsWithSum(Map<String, Integer> uniqueNameMap, String record) {
+    private void createUniqueRecordsWithSum(Map<String, BigDecimal> uniqueNameMap, String record) {
         String[] elements = record.split(",");
+        boolean validRecord = false;
         if(elements.length > 1){
             String name = elements[0].toLowerCase();
-            try {
-                //Assuming non integers are bad records
-                int sum = Integer.parseInt(elements[1]);
-                Integer existingSum = uniqueNameMap.get(name);
-                if(existingSum != null){
-                    sum =  sum + existingSum;
+
+            //Assuming non numbers are bad records
+            String number = elements[1];
+            if (isNumber(number)) {
+                //assumption here is we expect big numbers and/or too many records
+                //that integer may not be big enough to handle
+                BigDecimal sum = new BigDecimal(number);
+                BigDecimal existingSum = uniqueNameMap.get(name);
+                if (existingSum != null) {
+                    sum = sum.add(existingSum);
                 }
                 uniqueNameMap.put(name, sum);
-            }catch(NumberFormatException nfe){
-                logBadRecord(record);
+                validRecord = true;
             }
-        }else{
+        }
+        if (!validRecord) {
             logBadRecord(record);
         }
     }
 
     private void logBadRecord(String record) {
         System.out.println("Bad Record  : "+ record);
+    }
+
+    boolean isNumber(String text) {
+        return text.matches("-?\\d+(\\.\\d+)?");
     }
 
 }
